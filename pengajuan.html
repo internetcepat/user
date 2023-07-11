@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Aplikasi Pinjaman Uang - App</title>
+  <style>
+    /* Reset gaya default untuk elemen HTML */
+ html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Tampilan keseluruhan halaman */
+    body {
+      background-color: #f5f5f5;
+      padding-bottom: 50px;
+    }
+
+    h1 {
+      text-align: center;
+      padding: 20px;
+      background-color: #fff;
+    }
+
+    /* Form pinjaman */
+    form {
+      max-width: 400px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    /* Rincian pinjaman */
+    #rincian {
+      margin-top: 20px;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    #rincian h3 {
+      margin-bottom: 10px;
+    }
+
+    #rincian p {
+      margin-bottom: 5px;
+    }
+
+    /* Notifikasi */
+    #notifikasi {
+      margin-top: 20px;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    #notifikasi p {
+      margin-bottom: 10px;
+    }
+
+    #approve {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    /* Footer dengan pilihan menu */
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: #333;
+      padding: 10px 0;
+      color: #fff;
+      text-align: center;
+    }
+
+    footer ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: space-around;
+    }
+
+    footer ul li {
+      display: inline-block;
+    }
+
+    footer ul li a {
+      color: #fff;
+      text-decoration: none;
+      padding: 5px 10px;
+      transition: background-color 0.3s;
+    }
+
+    footer ul li a:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Selamat datang di Aplikasi Pinjaman Uang</h1>
+
+  <!-- Konten aplikasi -->
+    <h1>Detail Pengajuan</h1>
+
+  <div id="detail-container">
+    <h3>Informasi Pengajuan</h3>
+    <p><strong>Nomor Pengajuan:</strong> <span id="nomor-pengajuan"></span></p>
+    <p><strong>Jumlah Pinjaman:</strong> <span id="jumlah-pinjaman"></span></p>
+    <p><strong>Status Pengajuan:</strong> <span id="status-pengajuan"></span></p>
+
+    <h3>Konfirmasi</h3>
+    <p id="konfirmasi-pengajuan"></p>
+    <p id="keterangan-lunas"></p>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+  <script>
+    // Konfigurasi Firebase
+    var firebaseConfig = {
+      apiKey: "AIzaSyBXAt5-xYz-7PxCPhXsGcYO4ipLxNpc4sI",
+        authDomain: "database-53d50.firebaseapp.com",
+        databaseURL: "https://database-53d50-default-rtdb.firebaseio.com",
+        projectId: "database-53d50",
+        storageBucket: "database-53d50.appspot.com",
+        messagingSenderId: "1090320823493",
+        appId: "1:1090320823493:web:1cf4367216646d369d2cac",
+        measurementId: "G-45JQ6XVJ98"
+    };
+
+    // Inisialisasi Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Referensi database Firebase
+    var database = firebase.firestore();
+
+    // Simulasi pengambilan data pengajuan dari Firebase
+    var pengajuanRef = database.collection("pengajuan").doc("PENG_ID_ANDA");
+
+    pengajuanRef.get().then(function(doc) {
+      if (doc.exists) {
+        var pengajuan = doc.data();
+
+        // Mengisi detail pengajuan pada halaman
+        document.getElementById("nomor-pengajuan").textContent = pengajuan.nomor;
+        document.getElementById("jumlah-pinjaman").textContent = pengajuan.jumlahPinjaman;
+        document.getElementById("status-pengajuan").textContent = pengajuan.status;
+
+        // Menampilkan keterangan konfirmasi pengajuan
+        var konfirmasiPengajuan = document.getElementById("konfirmasi-pengajuan");
+        if (pengajuan.status === "Disetujui") {
+          konfirmasiPengajuan.textContent = "Pengajuan Anda telah disetujui.";
+        } else if (pengajuan.status === "Ditolak") {
+          konfirmasiPengajuan.textContent = "Pengajuan Anda telah ditolak.";
+        } else {
+          konfirmasiPengajuan.textContent = "Pengajuan Anda sedang diproses.";
+        }
+
+        // Menampilkan keterangan jika pengajuan sudah lunas
+        if (pengajuan.lunas) {
+          var keteranganLunas = document.getElementById("keterangan-lunas");
+          keteranganLunas.textContent = "Pengajuan Anda telah lunas.";
+        }
+      } else {
+        console.log("Data pengajuan tidak ditemukan.");
+      }
+    }).catch(function(error) {
+      console.log("Error mengambil data pengajuan:", error);
+    });
+  </script>
+
+  
+  
+  <footer>
+    <ul>
+      <li><a href="app.html">Ajukan</a></li>
+      <li><a href="pengajuan.html">Pengajuan</a></li>
+      <li><a href="profil.html">Profil</a></li>
+    </ul>
+  </footer>
+</body>
+</html>
+
